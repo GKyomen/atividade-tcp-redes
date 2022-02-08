@@ -1,5 +1,4 @@
 import socket
-from sqlite3 import connect
 import os
 
 IP = socket.gethostbyname(socket.gethostname())
@@ -34,17 +33,16 @@ def recieve_file(connection):
     try:
         filename = connection.recv(SIZE).decode(FORMAT)
 
-        ## nao sei se eh necessario
-        connection.send('Nome do arquivo recebido pelo servidor.\n'.encode(FORMAT))
+        filesize = int(connection.recv(SIZE).decode(FORMAT))
 
-        with open(filename, 'wb') as file: 
-            while 1:
-                data = connection.recv(SIZE)
-                if not data:
-                    break
-                file.write(data)
+        if(filesize == -1):
+            print('Arquivo nao existe.\n')
+            return
 
-            print(f'Dados de {filename} recebidos.\n')
+        with open(filename, 'wb') as file:
+            file.write(connection.recv(filesize))
+
+        print(f'Dados de {filename} recebidos.\n')
     except:
         print('Erro ao receber arquivo.\n')
 
@@ -53,11 +51,17 @@ def deliver_file(connection):
             
         filename = connection.recv(SIZE).decode(FORMAT)
 
-        with open(filename, 'rb') as file:
-                for data in file.readlines():
-                    connection.send(data)
+        if(not os.path.isfile('./'+filename)):
+            print('Arquivo nao existe.\n')
+            connection.send('-1'.encode(FORMAT))
+            return
+        else:
+            connection.send(str(os.path.getsize('./'+filename)).encode(FORMAT))
 
-                print(f'Dados de {filename} enviados.\n')
+        with open(filename, 'rb') as file:
+            connection.send(file.read())
+
+        print(f'Dados de {filename} enviados.\n')
     except:
         print('Erro ao enviar o arquivo.\n')
 

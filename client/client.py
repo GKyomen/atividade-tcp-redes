@@ -1,5 +1,5 @@
-from asyncio.windows_events import NULL
 import socket
+import os
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 7777
@@ -28,20 +28,17 @@ def send_file(client):
     try:
         client.send(filename.encode(FORMAT))
 
-        ## nao sei se eh necessario
-        response = client.recv(SIZE).decode(FORMAT)
-
-        if(response is NULL):
-            print('Erro ao enviar nome do arquivo.\n')
+        if(not os.path.isfile('./'+filename)):
+            print('Arquivo nao existe.\n')
+            client.send('-1'.encode(FORMAT))
             return
         else:
-            print(response)
+            client.send(str(os.path.getsize('./'+filename)).encode(FORMAT))
 
         with open(filename, 'rb') as file:
-            for data in file.readlines():
-                client.send(data)
+            client.send(file.read())
 
-            print(f'Dados de {filename} enviados.\n')
+        print(f'Dados de {filename} enviados.\n')
     except:
         print('Erro ao enviar arquivo.\n')
 
@@ -52,14 +49,16 @@ def get_file(client):
     try:
         client.send(filename.encode(FORMAT))
 
-        with open(filename, 'wb') as file:
-            while 1:
-                data = client.recv(SIZE)
-                if not data:
-                    break
-                file.write(data)
+        filesize = int(client.recv(SIZE).decode(FORMAT))
 
-            print(f'Dados de {filename} recebidos.\n')
+        if(filesize == -1):
+            print('Arquivo nao existe.\n')
+            return
+
+        with open(filename, 'wb') as file:
+            file.write(client.recv(filesize))
+
+        print(f'Dados de {filename} recebidos.\n')
     except:
         print('Erro ao receber arquivo.\n')
 
