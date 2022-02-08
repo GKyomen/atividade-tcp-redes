@@ -1,26 +1,45 @@
+import client
 import PySimpleGUI as sg
 sg.theme("DarkPurple7")
 
 
 def pedir_arquivo():
-    # ----------- Tela para pedir arquivos -----------
+    connection = client.create_connection()
+    # ----------- Tela para pedir arquivos e tela de erro -----------
     layout = [
         [sg.Text("Digite o nome do arquivo no campo abaixo e confirme clicando no botão", expand_x=True)],
-        [sg.InputText(expand_x=True)],
-        [sg.Submit("Requisitar"), sg.Cancel("Cancelar")]
+        [sg.InputText(expand_x=True, key="nome_arquivo")],
+        [sg.Submit("Requisitar"), sg.Cancel("Cancelar")],
+        [sg.Text("")],
+        [sg.Text(key="resposta", size=(40, 0), justification='center')]
+    ]
+
+    err_layout = [
+        [sg.Text("Houve um problema ao tentar conectar com o servidor :C")],
+        [sg.Button("Voltar")]
     ]
 
     # ----------- Criando janela para requisitar arquivos -----------
-    window = sg.Window("Requisitar arquivo", layout, size=(
+    if (connection == -1):
+        tela = err_layout
+    else:
+        tela = layout
+    window = sg.Window("Requisitar arquivo", tela, size=(
         500, 400), element_justification="c")
 
     # ----------- Manipulador de eventos -----------
     while True:
         event, values = window.read()
-        if event == sg.WIN_CLOSED or event == "Cancelar":
+        if event == sg.WIN_CLOSED or event == "Cancelar" or event == "Voltar":
             break
         if event == "Requisitar":
-            print("faz alguma coisa")
+            nome = values["nome_arquivo"]
+            if (nome == ""):
+                window["resposta"].update("preencha o campo antes do envio")
+            else:
+                retorno = client.get_file(connection, nome)
+                window["resposta"].update(retorno)
+    connection.close()
     window.close()
 
 
