@@ -1,4 +1,5 @@
 import socket
+from sqlite3 import connect
 import os
 
 IP = socket.gethostbyname(socket.gethostname())
@@ -24,8 +25,8 @@ def main():
     except:
         print(f'Erro ao se conectar com a porta {PORT}.\n')
 
-    directory_files()
-    recieve_file(connection)
+    directory_files(connection)
+    #recieve_file(connection)
 
     connection.close()
 
@@ -33,16 +34,17 @@ def recieve_file(connection):
     try:
         filename = connection.recv(SIZE).decode(FORMAT)
 
-        filesize = int(connection.recv(SIZE).decode(FORMAT))
+        ## nao sei se eh necessario
+        connection.send('Nome do arquivo recebido pelo servidor.\n'.encode(FORMAT))
 
-        if(filesize == -1):
-            print('Arquivo nao existe.\n')
-            return
+        with open(filename, 'wb') as file: 
+            while 1:
+                data = connection.recv(SIZE)
+                if not data:
+                    break
+                file.write(data)
 
-        with open(filename, 'wb') as file:
-            file.write(connection.recv(filesize))
-
-        print(f'Dados de {filename} recebidos.\n')
+            print(f'Dados de {filename} recebidos.\n')
     except:
         print('Erro ao receber arquivo.\n')
 
@@ -51,29 +53,27 @@ def deliver_file(connection):
             
         filename = connection.recv(SIZE).decode(FORMAT)
 
-        if(not os.path.isfile('./'+filename)):
-            print('Arquivo nao existe.\n')
-            connection.send('-1'.encode(FORMAT))
-            return
-        else:
-            connection.send(str(os.path.getsize('./'+filename)).encode(FORMAT))
-
         with open(filename, 'rb') as file:
-            connection.send(file.read())
+                for data in file.readlines():
+                    connection.send(data)
 
-        print(f'Dados de {filename} enviados.\n')
+                print(f'Dados de {filename} enviados.\n')
     except:
         print('Erro ao enviar o arquivo.\n')
 
-def directory_files():
+def directory_files(connection):
     try:
         for root, dirs, files in os.walk('./'):
             if 'server.py' in files:
                 files.remove('server.py')
-            for name in files:
-                print(name)
+            directory_list = []
+            for file in files:
+                directory_list.append(file)
+            directory_list = str(directory_list)
+            directory_list = directory_list.encode(FORMAT)
+            connection.send(directory_list)
     except:
-        print('Erro ao abrir a lista de arquivos disponíveis')
+        print('Erro ao abrir a lista de arquivos disponíveis.')
 
 
 if __name__ == "__main__":

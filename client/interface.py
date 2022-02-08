@@ -1,5 +1,9 @@
+<<<<<<< Updated upstream
 import client
 import PySimpleGUI as sg
+=======
+import pysimplegui as sg
+>>>>>>> Stashed changes
 sg.theme("DarkPurple7")
 
 

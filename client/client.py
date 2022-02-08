@@ -61,3 +61,14 @@ def get_file(client, filename):
     except:
         print('Erro ao receber arquivo.\n')
         return "Erro ao receber arquivo."
+
+def get_directory(client):
+    try:
+        print('Lista de arquivos do diretório:\n')
+        file_names = client.recv(SIZE).decode(FORMAT)
+        print({file_names})
+    
+    except:
+        print('Erro ao requisitar o diretório de arquivos.\n')
+
+
