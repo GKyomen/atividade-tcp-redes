@@ -1,7 +1,5 @@
 import socket
-from sqlite3 import connect
 import os
-import json
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 7777
@@ -11,15 +9,15 @@ SIZE = 1000000
 
 
 def main():
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # af_inet = IPv4 / sock_stream = TCP 
-        
+    # af_inet = IPv4 / sock_stream = TCP
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     try:
         print('Servidor iniciando...\n')
         server.bind(ADDRESS)
 
         server.listen(1)
         print('Ouvindo por conexoes...\n')
-
 
     except:
         print(f'Erro ao se conectar com a porta {PORT}.\n')
@@ -39,6 +37,7 @@ def main():
 
     connection.close()
 
+
 def recieve_file(connection):
     try:
         filename = connection.recv(SIZE).decode(FORMAT)
@@ -56,9 +55,10 @@ def recieve_file(connection):
     except:
         print('Erro ao receber arquivo.\n')
 
+
 def deliver_file(connection):
     try:
-            
+
         filename = connection.recv(SIZE).decode(FORMAT)
 
         if(not os.path.isfile('./'+filename)):
@@ -75,14 +75,16 @@ def deliver_file(connection):
     except:
         print('Erro ao enviar o arquivo.\n')
 
+
 def directory_files(connection):
     try:
-        for root, dirs, files in os.walk('./'):
+        for _, _, files in os.walk('./'):
             if 'server.py' in files:
                 files.remove('server.py')
             directory_list = ''
             for file in files:
                 directory_list += str(file) + '\n'
+            directory_list = directory_list.rstrip()
             connection.send(directory_list.encode(FORMAT))
     except:
         print('Erro ao abrir a lista de arquivos disponíveis.')

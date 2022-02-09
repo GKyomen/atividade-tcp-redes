@@ -1,4 +1,3 @@
-from multiprocessing import connection
 import socket
 import os
 
@@ -20,6 +19,7 @@ def create_connection():
     except:
         print(f'Erro ao se conectar com o servidor em {ADDRESS}.\n')
         return -1
+
 
 def end_connection(client):
     try:
@@ -72,13 +72,16 @@ def get_file(client, filename):
         print('Erro ao receber arquivo.\n')
         return "Erro ao receber arquivo."
 
+
 def get_directory(client):
+    client.send('directory'.encode(FORMAT))
     try:
-        print('Lista de arquivos do diretório:\n')
         file_names = client.recv(SIZE).decode(FORMAT)
         file_names = file_names.split("\n")
         for item in file_names:
             print(item)
-    
+        return file_names
+
     except:
         print('Erro ao requisitar o diretório de arquivos.\n')
+        return -1
