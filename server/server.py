@@ -1,6 +1,7 @@
 import socket
 from sqlite3 import connect
 import os
+import json
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 7777
@@ -79,12 +80,10 @@ def directory_files(connection):
         for root, dirs, files in os.walk('./'):
             if 'server.py' in files:
                 files.remove('server.py')
-            directory_list = []
+            directory_list = ''
             for file in files:
-                directory_list.append(file)
-            directory_list = str(directory_list)
-            directory_list = directory_list.encode(FORMAT)
-            connection.send(directory_list)
+                directory_list += str(file) + '\n'
+            connection.send(directory_list.encode(FORMAT))
     except:
         print('Erro ao abrir a lista de arquivos disponíveis.')
 
