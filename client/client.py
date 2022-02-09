@@ -63,7 +63,7 @@ def get_file(client, filename):
             print('Arquivo nao existe.\n')
             return "Arquivo não existente no servidor. Verifique se não há erro de digitação. Utilize a função de listagem para saber os nomes dos arquivos."
 
-        with open('./client/'+filename, 'wb') as file:
+        with open('./'+filename, 'wb') as file:
             file.write(client.recv(filesize))
 
         print(f'Dados de {filename} recebidos.\n')

@@ -48,7 +48,7 @@ def recieve_file(connection):
             print('Arquivo nao existe.\n')
             return
 
-        with open('./server/'+filename, 'wb') as file:
+        with open('./'+filename, 'wb') as file:
             file.write(connection.recv(filesize))
 
         print(f'Dados de {filename} recebidos.\n')
