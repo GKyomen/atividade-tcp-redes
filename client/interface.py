@@ -39,7 +39,7 @@ def pedir_arquivo():
             else:
                 retorno = client.get_file(connection, nome)
                 window["resposta"].update(retorno)
-    connection.close()
+    client.end_connection(connection)
     window.close()
 
 

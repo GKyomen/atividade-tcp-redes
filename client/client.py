@@ -20,9 +20,17 @@ def create_connection():
         print(f'Erro ao se conectar com o servidor em {ADDRESS}.\n')
         return -1
 
+def end_connection(client):
+    try:
+        client.close()
+    except:
+        print(f'Erro ao se desconectar do servidor em {ADDRESS}.\n')
+
 
 def send_file(client, filename):
     try:
+        client.send('send'.encode(FORMAT))
+
         client.send(filename.encode(FORMAT))
 
         if(not os.path.isfile('./'+filename)):
@@ -43,8 +51,9 @@ def send_file(client, filename):
 
 
 def get_file(client, filename):
-
     try:
+        client.send('get'.encode(FORMAT))
+
         client.send(filename.encode(FORMAT))
 
         filesize = int(client.recv(SIZE).decode(FORMAT))
@@ -53,7 +62,7 @@ def get_file(client, filename):
             print('Arquivo nao existe.\n')
             return "Arquivo não existente no servidor. Verifique se não há erro de digitação. Utilize a função de listagem para saber os nomes dos arquivos."
 
-        with open(filename, 'wb') as file:
+        with open('./client/'+filename, 'wb') as file:
             file.write(client.recv(filesize))
 
         print(f'Dados de {filename} recebidos.\n')
