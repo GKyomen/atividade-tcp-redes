@@ -82,20 +82,3 @@ def get_directory(client):
     
     except:
         print('Erro ao requisitar o diretório de arquivos.\n')
-
-
-def main():
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    try:
-        print(f'Tentando conexao com o servidor em {ADDRESS}...\n')
-        client.connect(ADDRESS)
-        print('Conectado!\n')
-    except:
-        print(f'Erro ao se conectar com o servidor em {ADDRESS}.\n')
-        
-    
-    get_directory(client)
-
-if __name__ == "__main__":
-    main()    
